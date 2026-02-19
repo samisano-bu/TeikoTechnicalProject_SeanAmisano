@@ -29,7 +29,7 @@ def run_analysis():
             WHERE 
                 condition = 'melanoma' AND
                 treatment = 'miraclib' AND
-                sample_type = 'pbmc'
+                sample_type = 'PBMC_whole_blood'
         """
         df = pd.read_sql_query(query, conn)
         print(f"Filtered down to {len(df)} PBMC samples from melanoma patients treated with miraclib.")
