@@ -23,8 +23,8 @@ Before you begin, ensure you have Python 3.8+ installed on your system.
 
 1.  **Clone the repository:**
     ```bash
-    git clone <your-repository-url>
-    cd <your-repository-directory>
+    git clone https://github.com/samisano-bu/TeikoTechnicalProject_SeanAmisano.git
+    cd TeikoTechnicalProject_SeanAmisano
     ```
 
 2.  **Install dependencies:**
@@ -70,30 +70,16 @@ The project runs in two simple, sequential steps. You must run them in this orde
 
 ---
 
-## Answering Specific Questions
+## Key Analysis Components
 
-To answer ad-hoc questions about the data, you can use the interactive Python shell. The following example calculates the average number of B cells for male melanoma responders at time=0.
+This project performs two main analyses:
 
-1.  **Run `load_data.py` first** to ensure the database is up-to-date.
-2.  **Start the Python interactive shell:** `python`
-3.  **Paste the following code:**
+1. **Part 3: Statistical Analysis (Responder vs Non-Responder)**
+   - Compares cell population frequencies between treatment responders and non-responders
+   - Uses independent samples t-tests to determine statistical significance
+   - Generates boxplot visualization showing distribution differences
 
-    ```python
-    import pandas as pd
-    import sqlite3
+2. **Part 4: Baseline Melanoma Cohort Analysis**
+   - Descriptive statistics for baseline melanoma patients
+   - Summarizes sample counts by project, response status, and sex
 
-    conn = sqlite3.connect('cell_counts.db')
-    query = """
-    SELECT b_cell
-    FROM cell_counts
-    WHERE
-        condition = 'melanoma' AND
-        sex = 'M' AND
-        response = 'yes' AND
-        time = 0
-    """
-    df = pd.read_sql_query(query, conn)
-    average_count = df['b_cell'].mean()
-    print(f"The average is: {average_count:.2f}")
-    conn.close()
-    ```
