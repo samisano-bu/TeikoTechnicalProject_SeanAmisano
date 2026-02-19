@@ -82,4 +82,12 @@ This project performs two main analyses:
 2. **Part 4: Baseline Melanoma Cohort Analysis**
    - Descriptive statistics for baseline melanoma patients
    - Summarizes sample counts by project, response status, and sex
+  
+   
+   ## Bonus: Calculate Average B Cells
+
+To calculate the average number of B cells for melanoma male responders at baseline:
+
+```bash
+python part4_query.py
 
