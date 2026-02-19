@@ -27,7 +27,7 @@ def run_analysis():
             SELECT *
             FROM {TABLE_NAME}
             WHERE 
-                disease = 'melanoma' AND
+                condition = 'melanoma' AND
                 treatment = 'miraclib' AND
                 sample_type = 'pbmc'
         """
