@@ -1,0 +1,14 @@
+cell_counts.db
+
+# Python virtual environment
+venv/
+.venv/
+env/
+ENV/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# macOS specific files
+.DS_Store
