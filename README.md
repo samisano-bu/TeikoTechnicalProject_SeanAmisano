@@ -84,10 +84,13 @@ This project performs two main analyses:
    - Summarizes sample counts by project, response status, and sex
   
    
-   ## Bonus: Calculate Average B Cells
+## Bonus: Calculate Average B Cells
 
 To calculate the average number of B cells for melanoma male responders at baseline:
 
 ```bash
 python part4_query.py
+```
+
+This script queries the database for the specific subset and returns the average B cell count.
 
