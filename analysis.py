@@ -14,30 +14,22 @@ def get_db_connection():
     """Establishes a connection to the SQLite database."""
     return sqlite3.connect(DB_FILE)
 
-def run_analysis():
+def run_statistical_analysis():
     """
-    Performs statistical analysis and generates a boxplot visualization.
+    Performs the main statistical analysis comparing cell frequencies
+    between responders and non-responders. (Corresponds to Part 3)
     """
-    print("\n--- Starting Full Analysis ---")
+    print("\n--- Starting Statistical Analysis (Part 3) ---")
     conn = get_db_connection()
     
     try:
-        # Query to select all relevant data for the analysis
-        query = f"""
-            SELECT *
-            FROM {TABLE_NAME}
-            WHERE 
-                condition = 'melanoma' AND
-                treatment = 'miraclib' AND
-                sample_type = 'PBMC'
-        """
+        # This query selects the data for the main analysis.
+        # We are looking for all PBMC samples, regardless of condition or treatment initially.
+        query = f"SELECT * FROM {TABLE_NAME} WHERE sample_type = 'PBMC'"
         df = pd.read_sql_query(query, conn)
-        print(f"Filtered down to {len(df)} PBMC samples from melanoma patients treated with miraclib.")
+        print(f"Loaded {len(df)} PBMC samples for analysis.")
 
-        # --- Data Transformation (Melting) ---
-        # We transform the data from a wide format (one column per cell type)
-        # to a long format (one column for 'population', one for 'count').
-        # This makes it much easier to plot with seaborn.
+        # Melt the data to make it easy to plot and analyze
         df_melted = df.melt(
             id_vars=['subject_id', 'response'],
             value_vars=CELL_POPULATIONS,
@@ -48,7 +40,7 @@ def run_analysis():
         # --- Data Visualization (Boxplot) ---
         plt.figure(figsize=(12, 8))
         sns.boxplot(x='population', y='count', hue='response', data=df_melted)
-        plt.title('Cell Counts by Population and Response Status (Melanoma, Miraclib, PBMC)')
+        plt.title('Cell Counts by Population and Response Status (PBMC Samples)')
         plt.ylabel('Relative Frequency (Count)')
         plt.xlabel('Cell Population')
         plt.xticks(rotation=45)
@@ -60,22 +52,17 @@ def run_analysis():
 
         # --- Statistical Significance Testing ---
         print("\n--- Statistical Significance Report ---")
-        print(f"Comparing cell counts between responders and non-responders.")
+        print(f"Comparing cell counts between responders and non-responders across all PBMC samples.")
         print(f"Using Independent Samples t-test. Significance threshold p < {SIGNIFICANCE_THRESHOLD}.")
 
         for pop in CELL_POPULATIONS:
             print("-" * 30)
             print(f"Population: {pop}")
-
-            # Separate the data for the current cell population
             responders = df[df['response'] == 'yes'][pop]
             non_responders = df[df['response'] == 'no'][pop]
-
-            # Perform the t-test
             if len(responders) > 1 and len(non_responders) > 1:
                 t_stat, p_value = ttest_ind(responders, non_responders, nan_policy='omit')
                 print(f"  - P-value: {p_value:.4f}")
-                
                 if p_value < SIGNIFICANCE_THRESHOLD:
                     print("  - Conclusion: The difference is statistically significant.")
                 else:
@@ -89,6 +76,41 @@ def run_analysis():
     finally:
         conn.close()
 
+def run_subset_analysis():
+    """
+    Runs a descriptive analysis on a specific subset of the data. (Corresponds to Part 4)
+    """
+    print("\n--- Starting Data Subset Analysis (Part 4) ---")
+    conn = get_db_connection()
+
+    try:
+        # Query for baseline melanoma samples
+        query = f"SELECT * FROM {TABLE_NAME} WHERE condition = 'melanoma' AND time = 0"
+        df = pd.read_sql_query(query, conn)
+        print(f"Identified {len(df.subject_id.unique())} unique subjects from baseline melanoma samples.")
+
+        print("\n--- Summary of the Baseline Melanoma Cohort ---")
+
+        project_counts = df.groupby('project')['subject_id'].nunique().reset_index(name='sample_count')
+        print("\n1. Sample Count per Project:")
+        print(project_counts.to_string(index=False))
+
+        response_counts = df.groupby('response')['subject_id'].nunique().reset_index(name='unique_subject_count')
+        print("\n2. Subject Count by Response Status:")
+        print(response_counts.to_string(index=False))
+        
+        sex_counts = df.groupby('sex')['subject_id'].nunique().reset_index(name='unique_subject_count')
+        print("\n3. Subject Count by Sex:")
+        print(sex_counts.to_string(index=False))
+
+        print("\nAnalysis complete.")
+
+    except Exception as e:
+        print(f"An error occurred during subset analysis: {e}")
+    finally:
+        conn.close()
+
 # --- Main execution block ---
 if __name__ == "__main__":
-    run_analysis()
+    run_subset_analysis()
+    run_statistical_analysis()
